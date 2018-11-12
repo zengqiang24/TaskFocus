@@ -1,7 +1,24 @@
 package com.qzeng.focustask.model
 
-import android.databinding.BaseObservable
+import androidx.lifecycle.ViewModel
+import com.qzeng.focustask.ScheduleInfo
+import java.util.*
 
-class ScheduleInfoViewModel : BaseObservable(){
-  
+
+class ScheduleInfoViewModel : ViewModel(){
+  lateinit var scheduleInfo : ScheduleInfo
+
+  fun getSechuleInfo(): ScheduleInfo?{
+    return scheduleInfo
+  }
+
+  fun startTask(){
+    scheduleInfo.taskTime
+  }
+
+  fun pauseTask(){
+
+  }
+
+
 }

@@ -5,12 +5,21 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.qzeng.focustask.databinding.TaskScheduleFragmentBinding
+
 
 class TaskTimeDetailFragment : Fragment()
 {
-  override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
+  private var  mTaskScheduleFragmentBinding:TaskScheduleFragmentBinding?=null
+   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
       savedInstanceState: Bundle?): View? {
-
-    return super.onCreateView(inflater, container, savedInstanceState)
+    super.onCreateView(inflater, container, savedInstanceState)
+    mTaskScheduleFragmentBinding = TaskScheduleFragmentBinding.inflate(layoutInflater, container, false)
+    return mTaskScheduleFragmentBinding!!.root
   }
+
+  override fun onStart() {
+    super.onStart()
+
+   }
 }

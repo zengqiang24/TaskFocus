@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">FocusTask</string>
+    <string name="pause">暂停</string>
+    <string name="start">开始工作</string>
+    <string name="start_rest">开始休息</string>
+
 </resources>
