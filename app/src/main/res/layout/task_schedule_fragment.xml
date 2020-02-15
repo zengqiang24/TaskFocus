@@ -32,12 +32,5 @@
             android:layout_height="wrap_content"
             android:text="@string/start_rest"
             android:textSize="@dimen/text_common_size"/>
-
-        <Button
-            android:id="@+id/bt_pause"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/pause"
-            android:textSize="@dimen/text_common_size"/>
     </LinearLayout>
 </layout>
