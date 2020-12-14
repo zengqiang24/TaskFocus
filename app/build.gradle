@@ -1,8 +1,9 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'dagger.hilt.android.plugin'
 
 android {
   dataBinding {
@@ -31,10 +32,7 @@ android {
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8
   }
-  // work-runtime-ktx 2.1.0 and above now requires Java 8
-  kotlinOptions {
-    jvmTarget = "1.8"
-  }
+
 }
 
 dependencies {
@@ -61,8 +59,11 @@ dependencies {
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$rootProject.kotlinVersion"
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$rootProject.coroutinesVersion"
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$rootProject.coroutinesVersion"
-
-  // Testing dependencies
+  implementation "io.reactivex.rxjava2:rxjava:$rootProject.rxjavaVersion"
+  implementation "io.reactivex.rxjava2:rxandroid:$rootProject.rxandroidVersion"
+  implementation "com.google.dagger:hilt-android:$rootProject.hiltVersion"
+  kapt "com.google.dagger:hilt-android-compiler:$rootProject.hiltVersion"
+   // Testing dependencies
   androidTestImplementation "androidx.arch.core:core-testing:$rootProject.coreTestingVersion"
   androidTestImplementation "androidx.test.espresso:espresso-contrib:$rootProject.espressoVersion"
   androidTestImplementation "androidx.test.espresso:espresso-core:$rootProject.espressoVersion"
@@ -72,4 +73,5 @@ dependencies {
   androidTestImplementation "androidx.work:work-testing:$rootProject.workVersion"
   androidTestImplementation "com.google.truth:truth:$rootProject.truthVersion"
   testImplementation "junit:junit:$rootProject.junitVersion"
+  debugImplementation "com.squareup.leakcanary:leakcanary-android:$rootProject.leakcanaryVersion"
 }

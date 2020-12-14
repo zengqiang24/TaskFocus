@@ -2,6 +2,13 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <variable
+            name="mViewModel"
+            type="com.qzeng.focustask.ui.TaskViewModel" />
+    </data>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -14,23 +21,25 @@
             android:layout_height="350dp"
             android:background="@color/colorPrimary"
             android:gravity="center"
-            android:text="24:59"
+            android:text="@{mViewModel.currentTime}"
             android:textColor="@color/colorAccent"
-            android:textSize="@dimen/text_time_large_size"/>
+            android:textSize="@dimen/text_time_large_size" />
 
         <Button
             android:id="@+id/bt_start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"
+            android:onClick="@{()->mViewModel.start()}"
             android:text="@string/start"
-            android:textSize="@dimen/text_common_size"/>
+            android:textSize="@dimen/text_common_size" />
 
         <Button
             android:id="@+id/bt_have_a_rest"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/start_rest"
-            android:textSize="@dimen/text_common_size"/>
+            android:onClick="@{()->mViewModel.pause()}"
+            android:textSize="@dimen/text_common_size" />
     </LinearLayout>
 </layout>
