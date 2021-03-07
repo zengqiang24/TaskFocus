@@ -1,12 +1,12 @@
 // ITaskService.aidl
 package com.qzeng.focustask.aidl;
-
-// Declare any non-default types here with import statements
-
+import com.qzeng.focustask.aidl.ICallBack;
 interface ITaskService {
     long getCurrentTaskTime();
+    void setTaskType(int type);
     void start();
     void pause();
     void reset();
-    void registerCallBack();
+    void registerCallBack(ICallBack callback);
+    void unRegisterCallback(ICallBack callback);
 }

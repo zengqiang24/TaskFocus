@@ -20,7 +20,7 @@ private fun getString(t: Int): String {
  * @return
  * @author Peter（张春玲）
  */
-fun format(t: Int): String? {
+fun formatDateToString(t: Int): String? {
     return when {
         t < 60000 -> {
             "${(t % 60000) / 1000}"

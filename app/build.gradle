@@ -36,6 +36,7 @@ android {
 }
 
 dependencies {
+  implementation project(path: ':crashWatcher')
   kapt "androidx.room:room-compiler:$rootProject.roomVersion"
   kapt "com.github.bumptech.glide:compiler:$rootProject.glideVersion"
   implementation "androidx.appcompat:appcompat:$rootProject.appCompatVersion"
@@ -74,4 +75,6 @@ dependencies {
   androidTestImplementation "com.google.truth:truth:$rootProject.truthVersion"
   testImplementation "junit:junit:$rootProject.junitVersion"
   debugImplementation "com.squareup.leakcanary:leakcanary-android:$rootProject.leakcanaryVersion"
+  implementation "com.orhanobut:logger:$rootProject.loggerVersion"
+
 }

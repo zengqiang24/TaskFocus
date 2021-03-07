@@ -1,23 +1,39 @@
 package com.qzeng.focustask.utils
 
 import android.util.Log
+import com.orhanobut.logger.Logger
 
-object  AppLogger {
-  private val appTag: String = "[Focus]"
-  fun d(tag: String, msg: String) {
-    Log.d(appTag + tag, msg)
-  }
+class AppLogger {
+    companion object {
+        @Volatile lateinit var sInstance: AppLogger
+        fun getInstance(): AppLogger {
+            if (sInstance == null) {
+                synchronized(AppLogger.javaClass::class) {
+                    if (sInstance == null) {
+                        sInstance = AppLogger()
+                    }
+                }
+            }
+            return sInstance
+        }
 
-  fun i(tag: String, msg: String) {
-    Log.i(appTag + tag, msg)
-  }
+        val appTag: String = "[Focus]"
+    }
 
-  fun w(tag: String, msg: String) {
-    Log.w(appTag + tag, msg)
-  }
+    fun d(tag: String, msg: String) {
+        Logger.t(tag).d(appTag + tag, msg)
+    }
 
-  fun e(tag: String, msg: String) {
-    Log.e(appTag + tag, msg)
-  }
+    fun i(tag: String, msg: String) {
+        Logger.t(tag).i(appTag + tag, msg)
+    }
+
+    fun w(tag: String, msg: String) {
+        Logger.t(tag).w(appTag + tag, msg)
+    }
+
+    fun e(tag: String, msg: String) {
+        Logger.t(tag).e(appTag + tag, msg)
+    }
 
 }
