@@ -1,6 +1,6 @@
 package com.qzeng.focustask.utils
 
-private fun getString(t: Int): String {
+private fun getString(t: Long): String {
     var m = ""
     m = if (t > 0) {
         if (t < 10) {
@@ -20,7 +20,7 @@ private fun getString(t: Int): String {
  * @return
  * @author Peter（张春玲）
  */
-fun formatDateToString(t: Int): String? {
+fun formatDateToString(t: Long): String? {
     return when {
         t < 60000 -> {
             "${(t % 60000) / 1000}"
