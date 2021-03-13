@@ -6,16 +6,14 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
-import android.util.Log
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.qzeng.focustask.R
 import com.qzeng.focustask.aidl.ICallBack
 import com.qzeng.focustask.aidl.ITaskService
 import com.qzeng.focustask.service.TaskService
-import com.qzeng.focustask.utils.AppLogger
 import dagger.hilt.android.AndroidEntryPoint
+
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
     private val TAG = "MainActivity"

@@ -3,10 +3,8 @@ package com.qzeng.focustask.service
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
-import android.util.Log
 import com.qzeng.focustask.aidl.ICallBack
 import com.qzeng.focustask.aidl.ITaskService
-import com.qzeng.focustask.utils.AppLogger
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -30,26 +28,30 @@ class TaskService : Service() {
 //    //Server Binder
     private val mIBinder = object : ITaskService.Stub() {
         override fun setTaskType(type: Int) {
-         }
+        }
 
         override fun start() {
-         }
+            taskManager.start()
+        }
 
-        override fun unRegisterCallback(callback: ICallBack?) {
-         }
+        override fun unRegisterCallback(callback: ICallBack) {
+            taskManager.removeTaskStateChangedListener(callback)
+        }
 
         override fun reset() {
-         }
+        }
 
         override fun pause() {
-         }
+            taskManager.pause()
+        }
 
         override fun getCurrentTaskTime(): Long {
-            return 1L
-         }
+            return taskManager.currentTaskInfo.currentTime
+        }
 
-        override fun registerCallBack(callback: ICallBack?) {
-         }
+        override fun registerCallBack(callback: ICallBack) {
+            taskManager.addTaskStateChangedListener(callback)
+        }
 
 
     }
