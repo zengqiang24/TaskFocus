@@ -17,7 +17,7 @@ import javax.inject.Singleton
 
 @Singleton
 class TaskManager @Inject constructor(@ApplicationContext val mContext: Context) : ServiceConnection {
-    private  val TAG = "TaskManager"
+    private val TAG = "TaskManager"
     var iTaskService: ITaskService? = null
     var mIndexUITaskCallback: IndexUITaskCallback? = null
     private val taskListeners = CopyOnWriteArraySet<TaskListener>()
@@ -30,7 +30,10 @@ class TaskManager @Inject constructor(@ApplicationContext val mContext: Context)
 
     fun registerTaskListener(listener: TaskListener) {
         taskListeners.add(listener)
-     }
+        iTaskService?.currentTaskTime?.run {
+            listener.onProgress(this)
+        }
+    }
 
     fun unRegisterTaskListener(listener: TaskListener) {
         taskListeners.remove(listener)
@@ -46,6 +49,7 @@ class TaskManager @Inject constructor(@ApplicationContext val mContext: Context)
 
 
     fun destroy() {
+        Log.d(TAG, "destroy() called")
         iTaskService?.unRegisterCallback(mIndexUITaskCallback)
         mContext.unbindService(this)
     }

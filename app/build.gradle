@@ -60,8 +60,6 @@ dependencies {
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$rootProject.kotlinVersion"
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$rootProject.coroutinesVersion"
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$rootProject.coroutinesVersion"
-  implementation "io.reactivex.rxjava2:rxjava:$rootProject.rxjavaVersion"
-  implementation "io.reactivex.rxjava2:rxandroid:$rootProject.rxandroidVersion"
   implementation "com.google.dagger:hilt-android:$rootProject.hiltVersion"
   kapt "com.google.dagger:hilt-android-compiler:$rootProject.hiltVersion"
    // Testing dependencies

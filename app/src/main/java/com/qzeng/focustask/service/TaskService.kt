@@ -6,10 +6,14 @@ import android.os.IBinder
 import com.qzeng.focustask.aidl.ICallBack
 import com.qzeng.focustask.aidl.ITaskService
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class TaskService : Service() {
+    private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
     @Inject
     lateinit var taskManager: TimeTaskManager
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -31,11 +35,15 @@ class TaskService : Service() {
         }
 
         override fun start() {
-            taskManager.start()
+             if(!taskManager.isStarted()){
+                 coroutineScope.launch {
+                     taskManager.start()
+                 }
+              }
         }
 
         override fun unRegisterCallback(callback: ICallBack) {
-            taskManager.removeTaskStateChangedListener(callback)
+            taskManager.removeTaskStateChangedCallback(callback)
         }
 
         override fun reset() {
@@ -50,7 +58,7 @@ class TaskService : Service() {
         }
 
         override fun registerCallBack(callback: ICallBack) {
-            taskManager.addTaskStateChangedListener(callback)
+            taskManager.addTaskStateChangedCallback(callback)
         }
 
 
