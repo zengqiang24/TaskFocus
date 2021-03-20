@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.qzeng.focustask.databinding.TaskScheduleFragmentBinding
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -23,6 +24,7 @@ class TaskIndexFragment : Fragment() {
         this.mTaskScheduleFragmentBinding = TaskScheduleFragmentBinding.inflate(layoutInflater, container,
                 false)
         mTaskScheduleFragmentBinding.mViewModel = mScheduleTaskViewModel
+        lifecycle.addObserver(mScheduleTaskViewModel)
         return mTaskScheduleFragmentBinding.root
     }
 

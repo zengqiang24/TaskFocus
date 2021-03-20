@@ -14,12 +14,7 @@ private fun getString(t: Long): String {
     return m
 }
 
-/**
- *
- * @param t 毫秒
- * @return
- * @author Peter（张春玲）
- */
+
 fun formatDateToString(t: Long): String? {
     return when {
         t < 60000 -> {

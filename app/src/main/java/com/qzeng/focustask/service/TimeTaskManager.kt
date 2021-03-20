@@ -1,5 +1,6 @@
 package com.qzeng.focustask.service
 
+import com.orhanobut.logger.Logger
 import com.qzeng.focustask.aidl.ICallBack
 import com.qzeng.focustask.model.TaskInfo
 import com.qzeng.focustask.utils.AppLogger
@@ -12,7 +13,7 @@ private const val TAG = "TimeComputeManager"
 
 @Singleton
 class TimeTaskManager @Inject constructor() {
-    lateinit var currentTaskInfo: TaskInfo
+    var currentTaskInfo = TaskInfo()
     private val taskStateChangedListeners = CopyOnWriteArraySet<ICallBack>()
     fun decrease() {
         if (!currentTaskInfo.isPaused && currentTaskInfo.currentTime > 0)
@@ -23,25 +24,26 @@ class TimeTaskManager @Inject constructor() {
     fun pause() {
         currentTaskInfo.isPaused = true
         notifyTaskState(currentTaskInfo)
-        AppLogger.getInstance().d(TAG, "pause called in viewModel")
-    }
+     }
 
     fun reset() {
         currentTaskInfo.isPaused = true
         currentTaskInfo.currentTime = DEFAULT_TIME_INERNAL
         notifyTaskState(currentTaskInfo)
-        AppLogger.getInstance().d(TAG, "reset called in viewModel")
-    }
+     }
 
     fun start() {
-        currentTaskInfo = TaskInfo()
+        if (currentTaskInfo == null) {
+            currentTaskInfo = TaskInfo()
+        }
         currentTaskInfo.isPaused = false
         decrease()
-        AppLogger.getInstance().d(TAG, "start called in viewModel")
-    }
+     }
 
     fun addTaskStateChangedListener(listener: ICallBack): Boolean {
-        return taskStateChangedListeners.add(listener)
+        taskStateChangedListeners.add(listener)
+        notifyTaskState(currentTaskInfo)
+        return true
     }
 
     fun removeTaskStateChangedListener(listener: ICallBack): Boolean {
