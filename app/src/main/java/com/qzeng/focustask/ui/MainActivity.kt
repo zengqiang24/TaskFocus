@@ -1,9 +1,6 @@
 package com.qzeng.focustask.ui
 
 import android.os.Bundle
-import android.os.Debug
-import android.os.Handler
-import android.util.Log
 import androidx.fragment.app.FragmentActivity
 import com.qzeng.focustask.R
 import dagger.hilt.android.AndroidEntryPoint
@@ -19,7 +16,7 @@ class MainActivity : FragmentActivity() {
         setContentView(R.layout.activity_main)
         taskManager.init()
         supportFragmentManager.beginTransaction()
-                .replace(R.id.content, TaskIndexFragment.createInstance(),
+                .replace(R.id.content, MainFragment.createInstance(),
                         "TAG").commitAllowingStateLoss()
     }
 

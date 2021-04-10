@@ -13,11 +13,15 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class TaskService : Service() {
+    //define a scope of a Coroutine. in main thread.
     private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
+
     @Inject
     lateinit var taskManager: TimeTaskManager
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        taskManager.init()
         return super.onStartCommand(intent, flags, startId)
+
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -35,11 +39,9 @@ class TaskService : Service() {
         }
 
         override fun start() {
-             if(!taskManager.isStarted()){
-                 coroutineScope.launch {
-                     taskManager.start()
-                 }
-              }
+            coroutineScope.launch {
+                taskManager.start(taskManager.currentTaskInfo)
+            }
         }
 
         override fun unRegisterCallback(callback: ICallBack) {

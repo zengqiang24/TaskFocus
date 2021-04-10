@@ -5,13 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import com.qzeng.focustask.databinding.TaskScheduleFragmentBinding
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class TaskIndexFragment : Fragment() {
+class MainFragment : Fragment() {
     private val TAG = "TaskTimeDetailFragment"
     private lateinit var mTaskScheduleFragmentBinding: TaskScheduleFragmentBinding
 
@@ -29,8 +28,8 @@ class TaskIndexFragment : Fragment() {
     }
 
     companion object {
-        fun createInstance(): TaskIndexFragment {
-            return TaskIndexFragment()
+        fun createInstance(): MainFragment {
+            return MainFragment()
         }
     }
 
