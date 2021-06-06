@@ -1,5 +1,6 @@
 package com.qzeng.focustask.service
 
+import android.os.Bundle
 import com.orhanobut.logger.Logger
 import com.qzeng.focustask.aidl.ICallBack
 import com.qzeng.focustask.model.TaskInfo
@@ -15,60 +16,44 @@ const val WORK_TASK_TYPE = 0
 const val REST_TASK_TYPE = 1
 const val TASK_STATE_START = 0x01
 const val TASK_STATE_PAUSE = 0x02
-const val TASK_STATE_READY = 0x00
+const val TASK_STATE_DONE = 0x03
 private const val TAG = "TimeComputeManager"
 
 @Singleton
 class TimeTaskManager @Inject constructor() {
-    lateinit var currentTaskInfo: TaskInfo
+    var currentTaskInfo: TaskInfo = TaskInfo()
     private val taskStateChangedCallbacks = CopyOnWriteArraySet<ICallBack>()
-    lateinit var taskQueue: LinkedList<TaskInfo>
     fun isStarted() = !currentTaskInfo.isStart()
-    fun init() {
-        taskQueue = LinkedList<TaskInfo>()
-        taskQueue.add(createTask(WORK_TASK_TYPE))
-        taskQueue.add(createTask(REST_TASK_TYPE))
-        currentTaskInfo = taskQueue.poll()
-    }
-
-    private suspend fun decrease() {
-        currentTaskInfo.currentTime = currentTaskInfo.currentTime - 1000L
-        notifyTaskState(currentTaskInfo)
-    }
 
     fun pause() {
         currentTaskInfo.state = TASK_STATE_PAUSE
         notifyTaskState(currentTaskInfo)
     }
 
-    fun reset() {
-        init()
+    fun stop() {
+        currentTaskInfo.state = TASK_STATE_PAUSE
+        notifyTaskState(currentTaskInfo)
     }
 
     suspend fun start(taskInfo: TaskInfo) {
-        Logger.t(TAG).d("currentThread = ${Thread.currentThread().name}")
-        if (taskInfo.isStart()) {
+        currentTaskInfo = taskInfo
+        if (currentTaskInfo.isStart()) {
             return
         }
 
-        taskInfo.state = TASK_STATE_START
-        val leaveTimes = taskInfo.currentTime / 1000
+        currentTaskInfo.state = TASK_STATE_START
+        val leaveTimes = currentTaskInfo.currentTime / 1000
         repeat(leaveTimes.toInt()) {
-            if (taskInfo.isPaused()) {
-                return@repeat
+            if (currentTaskInfo.isPaused()) {
+                return
             }
-            // there switch to IO thread
-            withContext(Dispatchers.Default) {
-                delay(1000L)
-                Logger.t(TAG).d("currentThread = ${Thread.currentThread().name}")
-            }
+            delay(1000L)
             Logger.t(TAG).d("currentThread = ${Thread.currentThread().name}")
-            if (!taskInfo.isPaused() && taskInfo.currentTime > 0) {
-                decrease()
+            if (currentTaskInfo.currentTime > 0) {
+                currentTaskInfo.currentTime = currentTaskInfo.currentTime - 1000L
+            } else {
+                currentTaskInfo.state = TASK_STATE_DONE
             }
-        }
-         if (taskInfo.currentTime <= 0) {
-            currentTaskInfo = taskQueue.poll()
             notifyTaskState(currentTaskInfo)
         }
     }
@@ -85,9 +70,16 @@ class TimeTaskManager @Inject constructor() {
 
     private fun notifyTaskState(task: TaskInfo) {
         for (taskStateChangedCallback in taskStateChangedCallbacks) {
-            taskStateChangedCallback.onProgress(task.currentTime)
-            taskStateChangedCallback.onTaskStateChanged(task.type, task.state)
+            val bundle = Bundle().apply {
+                putParcelable("TaskInfo", task)
+            }
+
+            taskStateChangedCallback.onTaskStateChanged(bundle)
         }
+    }
+
+    suspend fun resume() {
+        start(currentTaskInfo)
     }
 }
 
@@ -99,12 +91,15 @@ fun createTask(type: Int): TaskInfo {
     }
 }
 
+
 fun TaskInfo.isPaused(): Boolean {
     return this.state == TASK_STATE_PAUSE
 }
-fun TaskInfo.isREADY(): Boolean {
-    return this.state == TASK_STATE_READY
+
+fun TaskInfo.isDone(): Boolean {
+    return this.state == TASK_STATE_DONE
 }
+
 fun TaskInfo.isStart(): Boolean {
     return this.state == TASK_STATE_START
 }

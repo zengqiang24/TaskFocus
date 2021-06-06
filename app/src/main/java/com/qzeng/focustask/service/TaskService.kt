@@ -2,6 +2,7 @@ package com.qzeng.focustask.service
 
 import android.app.Service
 import android.content.Intent
+import android.os.Bundle
 import android.os.IBinder
 import com.qzeng.focustask.aidl.ICallBack
 import com.qzeng.focustask.aidl.ITaskService
@@ -19,9 +20,7 @@ class TaskService : Service() {
     @Inject
     lateinit var taskManager: TimeTaskManager
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        taskManager.init()
         return super.onStartCommand(intent, flags, startId)
-
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -29,40 +28,45 @@ class TaskService : Service() {
     }
 
     private fun showNotification() {
-
     }
 
     //
 //    //Server Binder
     private val mIBinder = object : ITaskService.Stub() {
-        override fun setTaskType(type: Int) {
+        override fun getCurrentTaskInfo(): Bundle {
+            return Bundle().apply { putParcelable("TaskInfo", taskManager.currentTaskInfo) }
         }
 
-        override fun start() {
+        override fun start(type: Int) {
             coroutineScope.launch {
-                taskManager.start(taskManager.currentTaskInfo)
+                if (taskManager.currentTaskInfo.state == TASK_STATE_PAUSE) {
+                    taskManager.resume()
+                } else {
+                    val taskInfo = createTask(type)
+                    taskManager.start(taskInfo)
+                }
             }
         }
 
-        override fun unRegisterCallback(callback: ICallBack) {
-            taskManager.removeTaskStateChangedCallback(callback)
+        override fun resume() {
+
         }
 
-        override fun reset() {
+        override fun unRegisterCallback(callback: ICallBack) {
+            coroutineScope.launch {
+                taskManager.removeTaskStateChangedCallback(callback)
+            }
         }
+
 
         override fun pause() {
             taskManager.pause()
         }
 
-        override fun getCurrentTaskTime(): Long {
-            return taskManager.currentTaskInfo.currentTime
-        }
 
         override fun registerCallBack(callback: ICallBack) {
             taskManager.addTaskStateChangedCallback(callback)
         }
-
 
     }
 }

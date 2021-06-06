@@ -5,11 +5,13 @@ import android.content.Context
 import android.content.Context.BIND_AUTO_CREATE
 import android.content.Intent
 import android.content.ServiceConnection
+import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import com.qzeng.focustask.aidl.ICallBack
 import com.qzeng.focustask.aidl.ITaskService
 import com.qzeng.focustask.service.TaskService
+import com.qzeng.focustask.service.WORK_TASK_TYPE
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.CopyOnWriteArraySet
 import javax.inject.Inject
@@ -21,7 +23,6 @@ class TaskManager @Inject constructor(@ApplicationContext val mContext: Context)
     var iTaskService: ITaskService? = null
     var mIndexUITaskCallback: IndexUITaskCallback? = null
     private val taskListeners = CopyOnWriteArraySet<TaskListener>()
-
     fun init() {
         val intent = Intent(mContext, TaskService::class.java)
         mContext.startService(intent)
@@ -30,8 +31,8 @@ class TaskManager @Inject constructor(@ApplicationContext val mContext: Context)
 
     fun registerTaskListener(listener: TaskListener) {
         taskListeners.add(listener)
-        iTaskService?.currentTaskTime?.run {
-            listener.onProgress(this)
+        iTaskService?.currentTaskInfo?.run {
+            listener.onTaskStateChanged(this)
         }
     }
 
@@ -40,22 +41,22 @@ class TaskManager @Inject constructor(@ApplicationContext val mContext: Context)
     }
 
     fun start() {
-        iTaskService?.start()
+        iTaskService?.start(WORK_TASK_TYPE)
+    }
+
+    fun resume() {
+        iTaskService?.resume()
     }
 
     fun pause() {
         iTaskService?.pause()
     }
 
-
-    fun destroy() {
-        Log.d(TAG, "destroy() called")
+    override fun onServiceDisconnected(name: ComponentName?) {
+        Log.d(TAG, "onServiceDisconnected() called")
         iTaskService?.unRegisterCallback(mIndexUITaskCallback)
         mContext.unbindService(this)
-    }
-
-    override fun onServiceDisconnected(name: ComponentName?) {
-        destroy()
+        iTaskService = null
     }
 
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -65,22 +66,15 @@ class TaskManager @Inject constructor(@ApplicationContext val mContext: Context)
     }
 
     class IndexUITaskCallback(private val taskListeners: CopyOnWriteArraySet<TaskListener>) : ICallBack.Stub() {
-        override fun onTaskStateChanged(type: Int, state: Int) {
-            for (taskListener in taskListeners) {
-                taskListener.onTaskStateChanged(type, state)
-            }
-        }
 
-        override fun onProgress(time: Long) {
+        override fun onTaskStateChanged(bundle: Bundle) {
             for (taskListener in taskListeners) {
-                taskListener.onProgress(time)
+                taskListener.onTaskStateChanged(bundle)
             }
         }
     }
 
     interface TaskListener {
-        fun onTaskStateChanged(type: Int, state: Int)
-
-        fun onProgress(time: Long)
+        fun onTaskStateChanged(bundle: Bundle)
     }
 }
