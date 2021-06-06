@@ -2,16 +2,15 @@ package com.qzeng.focustask.ui
 
 import android.os.Bundle
 import androidx.databinding.ObservableField
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.orhanobut.logger.Logger
 import com.qzeng.focustask.model.TaskInfo
 import com.qzeng.focustask.service.isDone
 import com.qzeng.focustask.utils.formatDateToString
+import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
+@HiltViewModel
 class TaskViewModel @Inject constructor(private val taskManager: TaskManager) : ViewModel(), LifecycleObserver, TaskManager.TaskListener {
     private val TAG = "ScheduleTaskViewModel"
     val currentTime: ObservableField<String> = ObservableField()

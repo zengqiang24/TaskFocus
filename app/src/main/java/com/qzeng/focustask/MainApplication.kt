@@ -1,17 +1,16 @@
 package com.qzeng.focustask
 
 import android.app.Application
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
-import com.qzeng.crashwatcher.BugReportManager
-import com.qzeng.focustask.utils.AppLogger
+import com.qzeng.focustask.ui.TaskManager
 import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
 
 @HiltAndroidApp
 class MainApplication : Application() {
+    @Inject
+    lateinit var taskManager: TaskManager
     override fun onCreate() {
         super.onCreate()
-
+        taskManager.init()
     }
 }

@@ -18,15 +18,19 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class TaskManager @Inject constructor(@ApplicationContext val mContext: Context) : ServiceConnection {
+class TaskManager @Inject constructor(@ApplicationContext val context: Context) : ServiceConnection {
     private val TAG = "TaskManager"
-    var iTaskService: ITaskService? = null
-    var mIndexUITaskCallback: IndexUITaskCallback? = null
+    private var iTaskService: ITaskService? = null
+    private var mIndexUITaskCallback: IndexUITaskCallback? = null
     private val taskListeners = CopyOnWriteArraySet<TaskListener>()
     fun init() {
-        val intent = Intent(mContext, TaskService::class.java)
-        mContext.startService(intent)
-        mContext.bindService(intent, this, BIND_AUTO_CREATE)
+        val intent = Intent(context, TaskService::class.java)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            context.startForegroundService(intent)
+        } else {
+            context.startActivity(intent)
+        }
+        context.bindService(intent, this, BIND_AUTO_CREATE)
     }
 
     fun registerTaskListener(listener: TaskListener) {
@@ -55,7 +59,7 @@ class TaskManager @Inject constructor(@ApplicationContext val mContext: Context)
     override fun onServiceDisconnected(name: ComponentName?) {
         Log.d(TAG, "onServiceDisconnected() called")
         iTaskService?.unRegisterCallback(mIndexUITaskCallback)
-        mContext.unbindService(this)
+        context.unbindService(this)
         iTaskService = null
     }
 
