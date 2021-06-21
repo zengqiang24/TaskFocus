@@ -41,5 +41,11 @@
             android:text="@string/start_rest"
             android:onClick="@{()->mViewModel.pause()}"
             android:textSize="@dimen/text_common_size" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:id="@+id/tv_prompt"
+            android:text="@{mViewModel.prompt}"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 </layout>

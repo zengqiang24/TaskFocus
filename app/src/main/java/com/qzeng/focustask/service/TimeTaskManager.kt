@@ -51,8 +51,8 @@ class TimeTaskManager @Inject constructor() {
             Logger.t(TAG).d("currentThread = ${Thread.currentThread().name}")
             if (currentTaskInfo.currentTime > 0) {
                 currentTaskInfo.currentTime = currentTaskInfo.currentTime - 1000L
-            } else {
-                currentTaskInfo.state = TASK_STATE_DONE
+                if (currentTaskInfo.currentTime == 0L)
+                    currentTaskInfo.state = TASK_STATE_DONE
             }
             notifyTaskState(currentTaskInfo)
         }

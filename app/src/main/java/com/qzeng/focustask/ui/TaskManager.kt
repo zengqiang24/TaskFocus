@@ -28,7 +28,7 @@ class TaskManager @Inject constructor(@ApplicationContext val context: Context) 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             context.startForegroundService(intent)
         } else {
-            context.startActivity(intent)
+            context.startService(intent)
         }
         context.bindService(intent, this, BIND_AUTO_CREATE)
     }
@@ -44,8 +44,8 @@ class TaskManager @Inject constructor(@ApplicationContext val context: Context) 
         taskListeners.remove(listener)
     }
 
-    fun start() {
-        iTaskService?.start(WORK_TASK_TYPE)
+    fun start(type: Int) {
+        iTaskService?.start(type)
     }
 
     fun resume() {
