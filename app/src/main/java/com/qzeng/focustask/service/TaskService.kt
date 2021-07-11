@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.IBinder
 import com.qzeng.focustask.aidl.ICallBack
 import com.qzeng.focustask.aidl.ITaskService
+import com.qzeng.focustask.model.TaskInfo
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +16,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class TaskService : Service() {
     //define a scope of a Coroutine. in main thread.
-    private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
+    private var _myBinder: MyBinder? = null
 
     @Inject
     lateinit var taskManager: TimeTaskManager
@@ -24,48 +25,49 @@ class TaskService : Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder? {
-        return mIBinder;
+        if (_myBinder == null) {
+            _myBinder = MyBinder(taskManager)
+        }
+        return _myBinder;
     }
 
     private fun showNotification() {
     }
 
-    //
-//    //Server Binder
-    private val mIBinder = object : ITaskService.Stub() {
+    class MyBinder(private val manager: TimeTaskManager) : ITaskService.Stub() {
+        private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
+
         override fun getCurrentTaskInfo(): Bundle {
-            return Bundle().apply { putParcelable("TaskInfo", taskManager.currentTaskInfo) }
+            return Bundle().apply { putParcelable("TaskInfo", manager.currentTaskInfo) }
         }
 
-        override fun start(type: Int) {
+        override fun start(type: Bundle) {
             coroutineScope.launch {
-                if (taskManager.currentTaskInfo.state == TASK_STATE_PAUSE) {
-                    taskManager.resume()
-                } else {
-                    val taskInfo = createTask(type)
-                    taskManager.start(taskInfo)
-                }
+                val taskInfo = type.getParcelable<TaskInfo>("TaskInfo")
+                manager.start(taskInfo)
             }
         }
 
         override fun resume() {
-
+            coroutineScope.launch {
+                manager.resume()
+            }
         }
 
         override fun unRegisterCallback(callback: ICallBack) {
             coroutineScope.launch {
-                taskManager.removeTaskStateChangedCallback(callback)
+                manager.removeTaskStateChangedCallback(callback)
             }
         }
 
 
         override fun pause() {
-            taskManager.pause()
+            manager.pause()
         }
 
 
         override fun registerCallBack(callback: ICallBack) {
-            taskManager.addTaskStateChangedCallback(callback)
+            manager.addTaskStateChangedCallback(callback)
         }
 
     }

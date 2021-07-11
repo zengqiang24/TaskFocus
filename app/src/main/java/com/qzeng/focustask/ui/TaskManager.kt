@@ -10,8 +10,8 @@ import android.os.IBinder
 import android.util.Log
 import com.qzeng.focustask.aidl.ICallBack
 import com.qzeng.focustask.aidl.ITaskService
+import com.qzeng.focustask.model.TaskInfo
 import com.qzeng.focustask.service.TaskService
-import com.qzeng.focustask.service.WORK_TASK_TYPE
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.CopyOnWriteArraySet
 import javax.inject.Inject
@@ -21,7 +21,7 @@ import javax.inject.Singleton
 class TaskManager @Inject constructor(@ApplicationContext val context: Context) : ServiceConnection {
     private val TAG = "TaskManager"
     private var iTaskService: ITaskService? = null
-    private var mIndexUITaskCallback: IndexUITaskCallback? = null
+    private var indexUITaskCallback: IndexUITaskCallback? = null
     private val taskListeners = CopyOnWriteArraySet<TaskListener>()
     fun init() {
         val intent = Intent(context, TaskService::class.java)
@@ -44,8 +44,9 @@ class TaskManager @Inject constructor(@ApplicationContext val context: Context) 
         taskListeners.remove(listener)
     }
 
-    fun start(type: Int) {
-        iTaskService?.start(type)
+    fun start(taskInfo: TaskInfo) {
+        val bundle = Bundle().apply { putParcelable("TaskInfo", taskInfo) }
+        iTaskService?.start(bundle)
     }
 
     fun resume() {
@@ -58,20 +59,21 @@ class TaskManager @Inject constructor(@ApplicationContext val context: Context) 
 
     override fun onServiceDisconnected(name: ComponentName?) {
         Log.d(TAG, "onServiceDisconnected() called")
-        iTaskService?.unRegisterCallback(mIndexUITaskCallback)
+        iTaskService?.unRegisterCallback(indexUITaskCallback)
         context.unbindService(this)
         iTaskService = null
     }
 
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
         iTaskService = ITaskService.Stub.asInterface(service)
-        mIndexUITaskCallback = IndexUITaskCallback(taskListeners)
-        iTaskService?.registerCallBack(mIndexUITaskCallback)
+        indexUITaskCallback = IndexUITaskCallback(taskListeners)
+        iTaskService?.registerCallBack(indexUITaskCallback)
     }
 
     class IndexUITaskCallback(private val taskListeners: CopyOnWriteArraySet<TaskListener>) : ICallBack.Stub() {
 
         override fun onTaskStateChanged(bundle: Bundle) {
+            bundle.classLoader = javaClass.classLoader
             for (taskListener in taskListeners) {
                 taskListener.onTaskStateChanged(bundle)
             }

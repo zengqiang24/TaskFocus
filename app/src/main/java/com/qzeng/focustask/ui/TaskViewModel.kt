@@ -6,27 +6,21 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.ViewModel
-import com.orhanobut.logger.Logger
 import com.qzeng.focustask.model.TaskInfo
-import com.qzeng.focustask.service.REST_TASK_TYPE
-import com.qzeng.focustask.service.WORK_TASK_TYPE
 import com.qzeng.focustask.service.isDone
-import com.qzeng.focustask.utils.formatDateToString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class TaskViewModel @Inject constructor(val taskManager: TaskManager)
+class TaskViewModel @Inject constructor(private val taskManager: TaskManager)
     : ViewModel(), LifecycleObserver, TaskManager.TaskListener {
-    private val TAG = "ScheduleTaskViewModel"
     val currentTime: ObservableField<String> = ObservableField()
-    private var currentTaskType = WORK_TASK_TYPE
     val prompt: ObservableField<String> = ObservableField("开始25分钟专注")
+    private var _taskInfo: TaskInfo? = null
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     fun onResume() {
         taskManager.registerTaskListener(this)
-
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
@@ -35,7 +29,7 @@ class TaskViewModel @Inject constructor(val taskManager: TaskManager)
     }
 
     fun start() {
-        taskManager.start(currentTaskType)
+        _taskInfo?.let { taskManager.start(it) }
     }
 
     fun pause() {
@@ -43,24 +37,17 @@ class TaskViewModel @Inject constructor(val taskManager: TaskManager)
     }
 
     override fun onTaskStateChanged(bundle: Bundle) {
-        bundle.classLoader = javaClass.classLoader
         val taskInfo = bundle.getParcelable<TaskInfo>("TaskInfo")
         taskInfo?.let {
-            Logger.t(TAG).d("task type = ${taskInfo.type}; task state = ${taskInfo.state} task.time = ${taskInfo.currentTime}")
-            currentTime.set(formatDateToString(taskInfo.currentTime))
-            if (taskInfo.isDone()) {
-                when (taskInfo.type) {
-                    WORK_TASK_TYPE -> {  //work task done,  starting rest task
-                        currentTaskType = REST_TASK_TYPE
-                        prompt.set("开始5分钟休息")
-                    }
-                    REST_TASK_TYPE -> {
-                        currentTaskType = WORK_TASK_TYPE
-                        prompt.set("开始25分钟专注")
-                    }
-                }
-            }
+            _taskInfo = taskInfo
+            currentTime.set(it.getCurrentTime())
+            prompt.set(if (it.isDone()) it.getNextTaskPrompt() else it.getPrompt())
         }
     }
+
+    companion object {
+        private val TAG = "ScheduleTaskViewModel"
+    }
+
 }
 

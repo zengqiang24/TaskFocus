@@ -15,7 +15,7 @@ private fun getString(t: Long): String {
 }
 
 
-fun formatDateToString(t: Long): String? {
+fun formatDateToString(t: Long): String {
     return when {
         t < 60000 -> {
             "${(t % 60000) / 1000}"

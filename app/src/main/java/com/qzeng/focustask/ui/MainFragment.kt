@@ -14,19 +14,25 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainFragment : Fragment(), ViewModelProvider.Factory {
-    private lateinit var _taskScheduleFragmentBinding: TaskScheduleFragmentBinding
-    private val _scheduleTaskViewModel: TaskViewModel by viewModels { this }
+    private lateinit var taskScheduleFragmentBinding: TaskScheduleFragmentBinding
+    private val scheduleTaskViewModel: TaskViewModel by viewModels { this }
 
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
-        _taskScheduleFragmentBinding = TaskScheduleFragmentBinding.inflate(layoutInflater, container, false).also {
-            it.mViewModel = _scheduleTaskViewModel
+        taskScheduleFragmentBinding = TaskScheduleFragmentBinding.inflate(layoutInflater, container, false)
+        scheduleTaskViewModel.let {
+            taskScheduleFragmentBinding.mViewModel = it
+            lifecycle.addObserver(it)
         }
-        lifecycle.addObserver(_scheduleTaskViewModel)
-        return _taskScheduleFragmentBinding.root
+        return taskScheduleFragmentBinding.root
+    }
+
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        val mainApplication = activity?.application as MainApplication
+        return TaskViewModel(mainApplication.taskManager) as T
     }
 
     companion object {
@@ -34,11 +40,6 @@ class MainFragment : Fragment(), ViewModelProvider.Factory {
         fun createInstance(): MainFragment {
             return MainFragment()
         }
-    }
-
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        val mainApplication = activity?.application as MainApplication
-        return TaskViewModel(mainApplication.taskManager) as T
     }
 
 }
