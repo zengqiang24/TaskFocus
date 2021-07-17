@@ -18,7 +18,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class TaskManager @Inject constructor(@ApplicationContext val context: Context) : ServiceConnection {
+class TaskManager @Inject constructor(@ApplicationContext val context: Context) :
+    ServiceConnection {
     private val TAG = "TaskManager"
     private var iTaskService: ITaskService? = null
     private var indexUITaskCallback: IndexUITaskCallback? = null
@@ -68,9 +69,15 @@ class TaskManager @Inject constructor(@ApplicationContext val context: Context) 
         iTaskService = ITaskService.Stub.asInterface(service)
         indexUITaskCallback = IndexUITaskCallback(taskListeners)
         iTaskService?.registerCallBack(indexUITaskCallback)
+
     }
 
-    class IndexUITaskCallback(private val taskListeners: CopyOnWriteArraySet<TaskListener>) : ICallBack.Stub() {
+    fun cancel() {
+        iTaskService?.cancel()
+    }
+
+    class IndexUITaskCallback(private val taskListeners: CopyOnWriteArraySet<TaskListener>) :
+        ICallBack.Stub() {
 
         override fun onTaskStateChanged(bundle: Bundle) {
             bundle.classLoader = javaClass.classLoader

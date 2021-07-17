@@ -6,6 +6,7 @@ interface ITaskService {
     void start(in Bundle task);
     void resume();
     void pause();
+    void cancel();
     void registerCallBack(ICallBack callback);
     void unRegisterCallback(ICallBack callback);
 }

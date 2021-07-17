@@ -15,7 +15,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class TaskService : Service() {
-    //define a scope of a Coroutine. in main thread.
     private var _myBinder: MyBinder? = null
 
     @Inject
@@ -35,8 +34,8 @@ class TaskService : Service() {
     }
 
     class MyBinder(private val manager: TimeTaskManager) : ITaskService.Stub() {
+        //define a scope of a Coroutine. in main thread.
         private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
-
         override fun getCurrentTaskInfo(): Bundle {
             return Bundle().apply { putParcelable("TaskInfo", manager.currentTaskInfo) }
         }
@@ -44,7 +43,9 @@ class TaskService : Service() {
         override fun start(type: Bundle) {
             coroutineScope.launch {
                 val taskInfo = type.getParcelable<TaskInfo>("TaskInfo")
-                manager.start(taskInfo)
+                if (taskInfo != null) {
+                    manager.start(taskInfo)
+                }
             }
         }
 
@@ -62,9 +63,16 @@ class TaskService : Service() {
 
 
         override fun pause() {
-            manager.pause()
+            coroutineScope.launch {
+                manager.pause()
+            }
         }
 
+        override fun cancel() {
+            coroutineScope.launch {
+                manager.cancel()
+            }
+        }
 
         override fun registerCallBack(callback: ICallBack) {
             manager.addTaskStateChangedCallback(callback)
