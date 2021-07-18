@@ -20,12 +20,12 @@ const val TASK_STATE_START = 0x01
 const val TASK_STATE_PAUSE = 0x02
 const val TASK_STATE_CANCEL = 0x03
 const val TASK_STATE_DONE = 0x04
+const val TASK_STATE_READY = 0x05
 private const val TAG = "TimeComputeManager"
 
 @Singleton
 class TimeTaskManager @Inject constructor() {
     var currentTaskInfo: TaskInfo = TaskInfo()
-    private var _backUpTaskInfo: TaskInfo? = null
     private val taskStateChangedCallbacks = CopyOnWriteArraySet<ICallBack>()
     fun isStarted() = !currentTaskInfo.isStart()
 
@@ -36,7 +36,6 @@ class TimeTaskManager @Inject constructor() {
 
     suspend fun start(taskInfo: TaskInfo) {
         currentTaskInfo = taskInfo
-        _backUpTaskInfo = taskInfo.copy()
         if (currentTaskInfo.isStart()) {
             return
         }
@@ -49,11 +48,12 @@ class TimeTaskManager @Inject constructor() {
             }
             delay(1000L)
             Logger.t(TAG).d("currentThread = ${Thread.currentThread().name}")
-            if (currentTaskInfo.currentTime > 0) {
+            if (currentTaskInfo.currentTime > 0 && !currentTaskInfo.isPaused()) {
                 currentTaskInfo.currentTime = currentTaskInfo.currentTime - 1000L
                 if (currentTaskInfo.currentTime == 0L)
                     currentTaskInfo.state = TASK_STATE_DONE
             }
+
             notifyTaskState(currentTaskInfo)
         }
     }
@@ -85,9 +85,10 @@ class TimeTaskManager @Inject constructor() {
 
     suspend fun cancel() {
         Logger.t(TAG).d("cancel called from service")
-        _backUpTaskInfo?.let {
-            currentTaskInfo = it
-            notifyTaskState(it)
+        currentTaskInfo?.apply {
+            this.state = TASK_STATE_READY
+            this.currentTime = WORK_TIME_INERNAL
+            notifyTaskState(this)
         }
     }
 }

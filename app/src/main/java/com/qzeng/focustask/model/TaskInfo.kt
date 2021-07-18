@@ -4,20 +4,22 @@ import android.os.Parcel
 import android.os.Parcelable
 import com.qzeng.focustask.service.WORK_TIME_INERNAL
 import com.qzeng.focustask.service.TASK_STATE_PAUSE
+import com.qzeng.focustask.service.TASK_STATE_READY
 
 /**
  * The schedule information in each task.
  */
-data class TaskInfo constructor(var currentTime: Long = WORK_TIME_INERNAL, var type: Int = 0) :
+data class TaskInfo constructor(
+    var currentTime: Long = WORK_TIME_INERNAL,
+    var type: Int = 0,
+    var state: Int = TASK_STATE_READY
+) :
     Parcelable {
-    var state: Int = TASK_STATE_PAUSE
-
     constructor(parcel: Parcel) : this(
         parcel.readLong(),
+        parcel.readInt(),
         parcel.readInt()
-    ) {
-        state = parcel.readInt()
-    }
+    )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeLong(currentTime)

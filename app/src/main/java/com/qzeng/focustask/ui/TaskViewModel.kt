@@ -21,6 +21,8 @@ class TaskViewModel constructor(private val taskManager: TaskManager) : ViewMode
     val debugInfoOfTaskInfo = ObservableField<String>()
     val isTaskRunning = ObservableBoolean(false)
     val isTaskCompleted = ObservableBoolean(false)
+    val isTaskPaused = ObservableBoolean(false)
+    val isTaskReady = ObservableBoolean(false)
 
     private var _taskInfo: TaskInfo? = null
 
@@ -34,34 +36,40 @@ class TaskViewModel constructor(private val taskManager: TaskManager) : ViewMode
         taskManager.unRegisterTaskListener(this)
     }
 
-    fun start() {
+    fun onResumeClick() {
+        taskManager.resume()
+    }
+
+    fun onStartClick() {
         _taskInfo?.let {
-            when (it.type) {
-//                WORK_TASK_TYPE -> taskManager.start(createTask(REST_TASK_TYPE))
-//                REST_TASK_TYPE -> taskManager.start(createTask(WORK_TASK_TYPE))
-                else ->
-                    taskManager.start(createTask(WORK_TASK_TYPE))
-            }
+            taskManager.start(createTask(WORK_TASK_TYPE))
+//            when (it.type) {
+////                WORK_TASK_TYPE -> taskManager.start(createTask(REST_TASK_TYPE))
+////                REST_TASK_TYPE -> taskManager.start(createTask(WORK_TASK_TYPE))
+//                else ->
+
+//            }
         }
     }
 
-    fun pause() {
+    fun onPauseClick() {
         taskManager.pause()
     }
 
-    fun cancel() {
+    fun onCancelClick() {
         taskManager.cancel()
     }
 
     override fun onTaskStateChanged(bundle: Bundle) {
-        val taskInfo = bundle.getParcelable<TaskInfo>("TaskInfo")
-        taskInfo?.let {
-            _taskInfo = taskInfo
-            debugInfoOfTaskInfo.set(taskInfo.toString())
+        bundle.getTaskInfoExtra()?.let {
+            _taskInfo = it
+            debugInfoOfTaskInfo.set(it.toString())
             currentTime.set(it.getCurrentTime())
             prompt.set(if (it.isDone()) it.getNextTaskPrompt() else it.getPrompt())
             isTaskRunning.set(it.isStart())
             isTaskCompleted.set(it.isDone())
+            isTaskPaused.set(it.isPaused())
+            isTaskReady.set(it.isReady())
         }
     }
 

@@ -1,11 +1,12 @@
 package com.qzeng.focustask.ui
 
+import android.os.Bundle
 import com.qzeng.focustask.model.TaskInfo
 import com.qzeng.focustask.service.*
 import com.qzeng.focustask.utils.formatDateToString
 
 fun TaskInfo.getPrompt(): String {
-    return if (this.type == REST_TASK_TYPE) "开始5分钟休息" else "开始25分钟专注"
+    return if (this.type == REST_TASK_TYPE) "正在5分钟的休息" else "正在25分钟的专注"
 }
 
 fun TaskInfo.getCurrentTime(): String {
@@ -34,4 +35,12 @@ fun TaskInfo.isStart(): Boolean {
 
 fun TaskInfo.isCancelled(): Boolean {
     return this.state == TASK_STATE_CANCEL
+}
+
+fun TaskInfo.isReady(): Boolean {
+    return this.state == TASK_STATE_READY
+}
+
+fun Bundle.getTaskInfoExtra(): TaskInfo? {
+    return getParcelable("TaskInfo")
 }

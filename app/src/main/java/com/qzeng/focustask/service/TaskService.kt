@@ -10,6 +10,7 @@ import com.qzeng.focustask.model.TaskInfo
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -35,7 +36,7 @@ class TaskService : Service() {
 
     class MyBinder(private val manager: TimeTaskManager) : ITaskService.Stub() {
         //define a scope of a Coroutine. in main thread.
-        private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
+        private val coroutineScope = CoroutineScope(Dispatchers.Default)
         override fun getCurrentTaskInfo(): Bundle {
             return Bundle().apply { putParcelable("TaskInfo", manager.currentTaskInfo) }
         }
@@ -63,12 +64,14 @@ class TaskService : Service() {
 
 
         override fun pause() {
+            coroutineScope.coroutineContext.cancelChildren()
             coroutineScope.launch {
                 manager.pause()
             }
         }
 
         override fun cancel() {
+            coroutineScope.coroutineContext.cancelChildren()
             coroutineScope.launch {
                 manager.cancel()
             }
