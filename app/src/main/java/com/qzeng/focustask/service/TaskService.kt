@@ -12,12 +12,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
+import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 
 @AndroidEntryPoint
 class TaskService : Service() {
     private var _myBinder: MyBinder? = null
-
     @Inject
     lateinit var taskManager: TimeTaskManager
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -35,14 +36,16 @@ class TaskService : Service() {
     }
 
     class MyBinder(private val manager: TimeTaskManager) : ITaskService.Stub() {
+        private var _taskQueueIndex = 0
+
         //define a scope of a Coroutine. in main thread.
-        private val coroutineScope = CoroutineScope(Dispatchers.Default)
+        private val _coroutineScope = CoroutineScope(Dispatchers.Default)
         override fun getCurrentTaskInfo(): Bundle {
             return Bundle().apply { putParcelable("TaskInfo", manager.currentTaskInfo) }
         }
 
         override fun start(type: Bundle) {
-            coroutineScope.launch {
+            _coroutineScope.launch {
                 val taskInfo = type.getParcelable<TaskInfo>("TaskInfo")
                 if (taskInfo != null) {
                     manager.start(taskInfo)
@@ -50,29 +53,45 @@ class TaskService : Service() {
             }
         }
 
+        override fun startTaskQueue() {
+            _coroutineScope.launch {
+                val taskList = getQueue()
+                if (_taskQueueIndex < taskList.size && taskList.size >= 0) {
+                    val taskInfo = taskList[_taskQueueIndex++]
+                    manager.start(taskInfo)
+                }
+            }
+        }
+
         override fun resume() {
-            coroutineScope.launch {
+            _coroutineScope.launch {
                 manager.resume()
             }
         }
 
         override fun unRegisterCallback(callback: ICallBack) {
-            coroutineScope.launch {
+            _coroutineScope.launch {
                 manager.removeTaskStateChangedCallback(callback)
+            }
+        }
+
+        override fun getTaskRegularQueue(): Bundle {
+            return Bundle().apply {
+                this.putParcelableArrayList("queue", getQueue())
             }
         }
 
 
         override fun pause() {
-            coroutineScope.coroutineContext.cancelChildren()
-            coroutineScope.launch {
+            _coroutineScope.coroutineContext.cancelChildren()
+            _coroutineScope.launch {
                 manager.pause()
             }
         }
 
         override fun cancel() {
-            coroutineScope.coroutineContext.cancelChildren()
-            coroutineScope.launch {
+            _coroutineScope.coroutineContext.cancelChildren()
+            _coroutineScope.launch {
                 manager.cancel()
             }
         }
@@ -81,5 +100,12 @@ class TaskService : Service() {
             manager.addTaskStateChangedCallback(callback)
         }
 
+        fun getQueue(): ArrayList<TaskInfo> {
+            return ArrayList<TaskInfo>()
+                .apply {
+                    add(createTask(WORK_TASK_TYPE))
+                    add(createTask(REST_TASK_TYPE))
+                }
+        }
     }
 }

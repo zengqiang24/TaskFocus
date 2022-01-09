@@ -37,6 +37,7 @@ buildscript {
         leakcanaryVersion = '2.5'
         hiltVersion = '2.37'
         loggerVersion = '2.2.0'
+        startUpVersion = '1.1.0'
     }
     repositories {
         google()

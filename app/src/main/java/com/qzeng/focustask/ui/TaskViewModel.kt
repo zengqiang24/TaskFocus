@@ -12,6 +12,7 @@ import com.qzeng.focustask.service.REST_TASK_TYPE
 import com.qzeng.focustask.service.WORK_TASK_TYPE
 import com.qzeng.focustask.service.createTask
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.*
 import javax.inject.Inject
 
 class TaskViewModel constructor(private val taskManager: TaskManager) : ViewModel(),
@@ -23,7 +24,6 @@ class TaskViewModel constructor(private val taskManager: TaskManager) : ViewMode
     val isTaskCompleted = ObservableBoolean(false)
     val isTaskPaused = ObservableBoolean(false)
     val isTaskReady = ObservableBoolean(false)
-
     private var _taskInfo: TaskInfo? = null
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
@@ -42,7 +42,7 @@ class TaskViewModel constructor(private val taskManager: TaskManager) : ViewMode
 
     fun onStartClick() {
         _taskInfo?.let {
-            taskManager.start(createTask(WORK_TASK_TYPE))
+            taskManager.start(it)
 //            when (it.type) {
 ////                WORK_TASK_TYPE -> taskManager.start(createTask(REST_TASK_TYPE))
 ////                REST_TASK_TYPE -> taskManager.start(createTask(WORK_TASK_TYPE))
@@ -73,8 +73,11 @@ class TaskViewModel constructor(private val taskManager: TaskManager) : ViewMode
         }
     }
 
+
     companion object {
         private const val TAG = "ScheduleTaskViewModel"
+
+
     }
 
 }

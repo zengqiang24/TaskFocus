@@ -13,6 +13,7 @@ import com.qzeng.focustask.aidl.ITaskService
 import com.qzeng.focustask.model.TaskInfo
 import com.qzeng.focustask.service.TaskService
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.ArrayList
 import java.util.concurrent.CopyOnWriteArraySet
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -56,6 +57,12 @@ class TaskManager @Inject constructor(@ApplicationContext val context: Context) 
 
     fun pause() {
         iTaskService?.pause()
+    }
+
+    fun getTaskList(): ArrayList<TaskInfo> {
+        val taskRegularQueue = iTaskService?.taskRegularQueue
+        val parcelableArrayList = taskRegularQueue?.getParcelableArrayList<TaskInfo>("queue")
+        return parcelableArrayList ?: ArrayList()
     }
 
     override fun onServiceDisconnected(name: ComponentName?) {
